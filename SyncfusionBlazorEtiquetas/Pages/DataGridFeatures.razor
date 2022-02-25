@@ -1,0 +1,130 @@
+﻿@page "/datagrid-features"
+
+
+@using Syncfusion.Blazor.Grids
+@using DataAccessLibrary
+
+
+@inject IArtigosData _db
+
+<h2>Artigos</h2>
+<br/>
+<div id = "ControlRegion">
+<SfGrid  ID="artigosGrid" DataSource="@artigos"   AllowPaging="true"  AllowReordering="true" AllowResizing="true" AllowGrouping="true" AllowExcelExport="true" AllowSelection="true"
+              AllowSorting="true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update","ExcelExport","Search"})" Height="315" Width="900">        
+        <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog"></GridEditSettings>
+        <DataManager Json="artigos" Adaptor="Adaptors.JsonAdaptor"></DataManager>
+       @* <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.FilterBar"></GridFilterSettings>*@
+    <GridPageSettings PageSizes="true"></GridPageSettings>
+	@*<GridSelectionSettings Type="Syncfusion.Blazor.Grids.SelectionType.Multiple"></GridSelectionSettings>*@
+        <GridEvents OnActionBegin="ActionBeginHandler" TValue="ArtigoModels"></GridEvents>
+        <GridColumns>
+            <GridColumn Type='ColumnType.CheckBox' Width="50"></GridColumn>
+            <GridColumn Field=@nameof(ArtigoModels.cod_artigo) HeaderText="Codigo"  ValidationRules="@(new ValidationRules{ Required=true })" TextAlign="TextAlign.Right" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(ArtigoModels.descricao) HeaderText="Descrição" ValidationRules="@(new ValidationRules{ Required=true })" Width="120"></GridColumn>
+             <GridColumn Field=@nameof(ArtigoModels.cod_barra) HeaderText="Codigo de Barra" ValidationRules="@(new ValidationRules{ Required=true })" Width="120"></GridColumn>
+            @*<GridColumn Field=@nameof(ArtigoModels.cod_barra) HeaderText=" Codigo de Barra" EditType="EditType.DatePickerEdit" Format="d" TextAlign="TextAlign.Right" Width="130" Type="ColumnType.Date"></GridColumn>*@
+            @*<GridColumn Field=@nameof(Order.Freight) HeaderText="Freight" Format="C2" TextAlign="TextAlign.Right" EditType="EditType.NumericEdit" Width="120"></GridColumn>
+            <GridColumn Field=@nameof(Order.ShipCountry) HeaderText="Ship Country" EditType="EditType.DropDownEdit" Width="150"></GridColumn>*@
+        </GridColumns>
+    </SfGrid>
+</div>
+<br/>
+
+<br/>
+<style>
+    .ulstyle {
+        margin: 0px;
+        padding-left: 20px;
+        display: inline-block;
+    }
+    .list {
+    float: left;
+    line-height: 20px;
+    margin: 10px;
+    min-width: 200px;
+    }
+</style>
+@code{
+
+
+    //public string Action { get; set; }
+
+    //public object Key { get; set; }
+
+    //public List<ArtigoModels> Added   { get; set; }
+    //public List<ArtigoModels> Changed { get; set; }
+    //public List<ArtigoModels> Deleted { get; set; }
+
+    private List<ArtigoModels> artigos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        artigos = await _db.GetArtigo();
+    }
+
+
+
+    //private async Task InsertData()
+    //{
+    //    await OnInitializedAsync();
+    //}
+
+    //private async Task UpdateData()
+    //{
+    //    await OnInitializedAsync();
+    //}
+
+    //private async Task DeleteData()
+    //{
+    //    await OnInitializedAsync();
+    //}
+
+    //public List<Order> Orders { get; set; }
+    //SfGrid<Order> Grid;
+    //protected override void OnInitialized()
+    //{
+    //    Orders = Enumerable.Range(1, 75).Select(x => new Order()
+    //    {
+    //        OrderID = 1000 + x,
+    //        CustomerID = (new string[] { "ALFKI", "ANANTR", "ANTON", "BLONP", "BOLID" })[new Random().Next(5)],
+    //        Freight = 2.1 * x,
+    //        OrderDate = DateTime.Now.AddDays(-x),
+    //        ShipCountry = (new string[] { "USA", "UK", "CHINA", "RUSSIA", "INDIA" })[new Random().Next(5)]
+    //    }).ToList();
+    //}
+    public async void ActionBeginHandler(ActionEventArgs<ArtigoModels> Args)
+    {
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if(Args.Action == "Add")
+            {
+                await _db.InsertArtigo(Args.Data);
+                
+            }
+           
+            else
+            {
+                await _db.UpdateArtigo(Args.Data);
+                
+            }
+
+        }
+
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+                  
+                await _db.DeleteArtigo(Args.Data);
+               
+            
+        }
+    }
+    //public class Order
+    //{
+    //    public int? OrderID { get; set; }
+    //    public string CustomerID { get; set; }
+    //    public DateTime? OrderDate { get; set; }
+    //    public double? Freight { get; set; }
+    //    public string ShipCountry { get; set; }
+    //}
+}
